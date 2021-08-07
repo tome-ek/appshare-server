@@ -1,0 +1,15 @@
+{
+  "exclude": ["./node_modules/", "./dist/"],
+  "compilerOptions": {
+    "allowJs": true,
+    "target": "es6",
+    "module": "commonjs",
+    "rootDir": "./",
+    "outDir": "./build",
+    "esModuleInterop": true,
+    "types": ["node"],
+    "strict": true,
+    "lib": ["es2019"],
+    "strictPropertyInitialization": false
+  }
+}
