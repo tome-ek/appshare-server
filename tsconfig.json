@@ -1,15 +1,21 @@
 {
-  "exclude": ["./node_modules/", "./dist/"],
+  "include": ["./index.ts", "src/**/*.ts"],
+  "exclude": ["node_modules/"],
   "compilerOptions": {
-    "allowJs": true,
-    "target": "es6",
+    "allowJs": false,
+    "target": "es5",
     "module": "commonjs",
     "rootDir": "./",
     "outDir": "./build",
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "types": ["node"],
     "strict": true,
-    "lib": ["es2019"],
+    "lib": ["es2018"],
     "strictPropertyInitialization": false
+  },
+  "ts-node": {
+    "transpileOnly": true,
+    "transpiler": "ts-node/transpilers/swc-experimental"
   }
 }

@@ -1,6 +1,7 @@
-import decompress from 'decompress';
+import * as decompress from 'decompress';
 import path from 'path';
 import { promisify } from 'bluebird';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const plist = require('simple-plist');
 
 type PlistData = {
@@ -11,6 +12,7 @@ type PlistData = {
   };
   build: {
     version: string;
+    bundleName: string;
     buildNumber: string;
   };
 };
@@ -28,17 +30,23 @@ type AppMetadata = {
   CFBundleVersion: string;
 };
 
+export type UnzipFunction = (
+  input: string | Buffer,
+  output?: string | decompress.DecompressOptions,
+  opts?: decompress.DecompressOptions
+) => Promise<decompress.File[]>;
+
 export interface FilesService {
   unzipAppBundle: (path: string, dirName: string) => Promise<string[]>;
   readPlist: (paths: string[]) => Promise<PlistData>;
 }
 
-const filesService = (): FilesService => {
+const filesService = (decompress: UnzipFunction): FilesService => {
   return {
     unzipAppBundle: async (filePath, dirName) => {
       return (
-        await decompress(filePath, `./tmp/${dirName}`, {
-          filter: file => {
+        await decompress(filePath, `./storage/${dirName}`, {
+          filter: (file) => {
             return (
               (file.path.endsWith('Info.plist') ||
                 path.extname(file.path) === '.png') &&
@@ -46,12 +54,12 @@ const filesService = (): FilesService => {
             );
           },
         })
-      ).map(f => `./tmp/${dirName}/${f.path}`);
+      ).map((f) => `./storage/${dirName}/${f.path}`);
     },
-    readPlist: async paths => {
+    readPlist: async (paths) => {
       const appMetadata = await promisify<AppMetadata, string | undefined>(
         plist.readFile
-      )(paths.find(f => path.basename(f, '.plist') === 'Info'));
+      )(paths.find((f) => path.basename(f, '.plist') === 'Info'));
       return {
         app: {
           name: appMetadata.CFBundleName,
@@ -62,6 +70,7 @@ const filesService = (): FilesService => {
         build: {
           version: appMetadata.CFBundleShortVersionString,
           buildNumber: appMetadata.CFBundleVersion,
+          bundleName: appMetadata.CFBundleName,
         },
       };
     },

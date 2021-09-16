@@ -1,0 +1,10 @@
+{
+  "extension": ["ts"],
+  "require": [
+    "ts-node/register",
+    "dotenv-flow/config",
+    "test/integration/global.hooks.ts"
+  ],
+  "parallel": false,
+  "slow": 2000
+}

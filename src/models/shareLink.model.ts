@@ -7,36 +7,48 @@ import {
 } from 'sequelize';
 import { sequelize } from '../infra/sequelize';
 import bcrypt from 'bcrypt';
-import AppAccess, { AppAccessProps } from './appAccess.model';
-import { AppProps } from './app.model';
+import appAccess, { AppAccess } from './appAccess.model';
+import { App } from './app.model';
 
-export interface ShareLinkProps extends Model {
+/**
+ * Represents a share link used to share a build.
+ * @typedef {object} ShareLink
+ * @property {number} id - Share link id
+ * @property {string} token - Authorization token used to identifiy the share link. Can be sent in the Authorization header.
+ * @property {string} tokenId - Unique string identifier of the authorization token
+ * @property {string} shareUrl - Url to the front end used for sharing the build
+ * @property {string} expiresAt - Expiration date of the share link
+ * @property {boolean} hasPassword - Is the share link protected by a password
+ * @property {string} password - (Optional) Hash of the password for the share link
+ */
+export interface ShareLink extends Model {
   readonly id?: number;
-  readonly userId: number;
-  readonly appId: number;
   readonly token: string;
   readonly tokenId: string;
   readonly shareUrl?: string;
   readonly expiresAt: Date;
-  readonly isSingleUse: boolean;
   readonly hasPassword: boolean;
   readonly password?: string;
 
-  readonly createAppAccess: HasManyCreateAssociationMixin<AppAccessProps>;
+  readonly userId: number;
+  readonly appId: number;
 
-  readonly appAccesses?: ShareLinkProps[];
-  readonly app?: AppProps;
+  readonly appAccesses?: ShareLink[];
+  readonly app?: App;
+
+  readonly createAppAccess: HasManyCreateAssociationMixin<AppAccess>;
+
   associations: {
-    appAccesses: Association<ShareLinkProps, AppAccessProps>;
-    app: Association<ShareLinkProps, AppProps>;
+    appAccesses: Association<ShareLink, AppAccess>;
+    app: Association<ShareLink, App>;
   };
 }
 
-export type ShareLinkStatic = typeof Model & {
-  new (values?: object, options?: BuildOptions): ShareLinkProps;
+export type ShareLinkModel = typeof Model & {
+  new (values?: Record<string, unknown>, options?: BuildOptions): ShareLink;
 };
 
-const ShareLink = <ShareLinkStatic>sequelize.define(
+const shareLink = <ShareLinkModel>sequelize.define(
   'shareLink',
   {
     id: {
@@ -60,10 +72,6 @@ const ShareLink = <ShareLinkStatic>sequelize.define(
       type: DataTypes.DATE,
       allowNull: false,
     },
-    isSingleUse: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
     hasPassword: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
@@ -75,7 +83,7 @@ const ShareLink = <ShareLinkStatic>sequelize.define(
   {
     tableName: 'shareLinks',
     hooks: {
-      beforeCreate: async shareLink => {
+      beforeCreate: async (shareLink) => {
         const password = shareLink.get('password');
         if (password && typeof password === 'string') {
           const hash = await bcrypt.hash(password, 10);
@@ -86,11 +94,11 @@ const ShareLink = <ShareLinkStatic>sequelize.define(
   }
 );
 
-ShareLink.hasMany(AppAccess, {
+shareLink.hasMany(appAccess, {
   sourceKey: 'id',
   foreignKey: 'shareLinkId',
   as: 'appAccesses',
 });
-AppAccess.belongsTo(ShareLink);
+appAccess.belongsTo(shareLink);
 
-export default ShareLink;
+export default shareLink;

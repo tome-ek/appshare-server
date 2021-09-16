@@ -1,11 +1,21 @@
 import { DataTypes, Model, BuildOptions, Association } from 'sequelize';
 import { sequelize } from '../infra/sequelize';
-import { AppProps } from './app.model';
-import Build, { BuildProps } from './build.model';
-import Device, { DeviceProps } from './device.model';
-import { UserProps } from './user.model';
+import { App } from './app.model';
+import { User } from './user.model';
+import build, { Build } from './build.model';
+import device, { Device } from './device.model';
 
-export interface SessionProps extends Model {
+/**
+ * Represents a user session of the simulation.
+ * @typedef {object} Session
+ * @property {number} id - Session id
+ * @property {string} sessionId - Short alphanumeric unique identifier of the session
+ * @property {number} buildId - Id of the build associated with this session
+ * @property {number} appId - Id of the app associated with this session
+ * @property {number} deviceId - Id of the device associated with this session
+ * @property {number} userId - Id of the user associated with this session
+ */
+export interface Session extends Model {
   readonly id?: number;
   readonly sessionId: string;
 
@@ -14,22 +24,23 @@ export interface SessionProps extends Model {
   readonly deviceId: number;
   readonly userId: number;
 
-  readonly app?: AppProps;
-  readonly device?: DeviceProps;
-  readonly user?: UserProps;
-  readonly build?: BuildProps;
+  readonly app?: App;
+  readonly device?: Device;
+  readonly user?: User;
+  readonly build?: Build;
+
   associations: {
-    app: Association<SessionProps, AppProps>;
-    device: Association<SessionProps, DeviceProps>;
-    user: Association<SessionProps, UserProps>;
-    build: Association<SessionProps, BuildProps>;
+    app: Association<Session, App>;
+    device: Association<Session, Device>;
+    user: Association<Session, User>;
+    build: Association<Session, Build>;
   };
 }
-export type SessionStatic = typeof Model & {
-  new (values?: object, options?: BuildOptions): SessionProps;
+export type SessionModel = typeof Model & {
+  new (values?: Record<string, unknown>, options?: BuildOptions): Session;
 };
 
-const Session = <SessionStatic>sequelize.define(
+const session = <SessionModel>sequelize.define(
   'session',
   {
     id: {
@@ -46,7 +57,7 @@ const Session = <SessionStatic>sequelize.define(
   { tableName: 'sessions' }
 );
 
-Session.belongsTo(Device);
-Session.belongsTo(Build);
+session.belongsTo(device);
+session.belongsTo(build);
 
-export default Session;
+export default session;

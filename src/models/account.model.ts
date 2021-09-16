@@ -6,24 +6,33 @@ import {
   Association,
 } from 'sequelize';
 import { sequelize } from '../infra/sequelize';
-import User, { UserProps } from './user.model';
+import user, { User } from './user.model';
 
-export interface AccountProps extends Model {
+/**
+ * Represents an account of a user.
+ * @typedef {object} Account
+ * @property {number} id - Account id
+ * @property {string} firebaseId - Unique identifier provided by Firebase
+ * @property {User} user - (optional) Accociated user object
+ */
+export interface Account extends Model {
   readonly id?: number;
   readonly firebaseId: string;
-  readonly createUser: HasOneCreateAssociationMixin<UserProps>;
-  readonly user?: UserProps;
+
+  readonly user?: User;
+
+  readonly createUser: HasOneCreateAssociationMixin<User>;
 
   associations: {
-    user: Association<AccountProps, UserProps>;
+    user: Association<Account, User>;
   };
 }
 
-export type AccountStatic = typeof Model & {
-  new (values?: object, options?: BuildOptions): AccountProps;
+export type AccountModel = typeof Model & {
+  new (values?: Record<string, unknown>, options?: BuildOptions): Account;
 };
 
-const Account = <AccountStatic>sequelize.define(
+const account = <AccountModel>sequelize.define(
   'account',
   {
     id: {
@@ -39,7 +48,7 @@ const Account = <AccountStatic>sequelize.define(
   { tableName: 'accounts' }
 );
 
-Account.hasOne(User);
-User.belongsTo(Account);
+account.hasOne(user);
+user.belongsTo(account);
 
-export default Account;
+export default account;

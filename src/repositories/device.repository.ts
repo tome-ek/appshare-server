@@ -1,26 +1,30 @@
-import Boom from '@hapi/boom';
-import Device from '../models/device.model';
+import { DeviceModel } from '../models/device.model';
+import { DeviceDto } from './../dtos/DeviceDto';
+
+type CreateDeviceRequestBody = {
+  readonly name: string;
+  readonly systemVersion: string;
+  readonly previewImageUrl: string;
+  readonly screenWidth?: number;
+  readonly screenHeight?: number;
+  readonly blueprintId?: string;
+};
 
 export interface DeviceRepository {
-  createDevice: (device: any) => Promise<object>;
-  patchDevice: (deviceId: number, json: any) => Promise<object>;
-  getDevices: () => Promise<object[]>;
+  createDevice: (device: CreateDeviceRequestBody) => Promise<DeviceDto>;
+  getDevices: () => Promise<DeviceDto[]>;
 }
 
-const deviceRepository = (): DeviceRepository => {
+const deviceRepository = (Device: DeviceModel): DeviceRepository => {
   return {
-    createDevice: async deviceJson => {
+    createDevice: async (deviceJson) => {
       const device = await Device.create(deviceJson);
-      return device.toJSON();
+      return <DeviceDto>device.toJSON();
     },
-    getDevices: async () => Device.findAll(),
-    patchDevice: async (deviceId, json) => {
-      const device = await Device.findByPk(deviceId);
-      if (!device) {
-        throw Boom.notFound;
-      }
-      device.set(json);
-      return device.save();
+    getDevices: async () => {
+      return (await Device.findAll()).map(
+        (device) => <DeviceDto>device.toJSON()
+      );
     },
   };
 };

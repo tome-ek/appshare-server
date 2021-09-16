@@ -1,76 +1,155 @@
-import AppAccess from '../models/appAccess.model';
-import jwt, { JsonWebTokenError, Jwt, TokenExpiredError } from 'jsonwebtoken';
-import ShareLink from '../models/shareLink.model';
+import { AppAccessModel } from '../models/appAccess.model';
+import jwt, { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
+import { ShareLinkModel } from '../models/shareLink.model';
 import Boom from '@hapi/boom';
 import bcrypt from 'bcrypt';
 import { promisify } from 'bluebird';
-import App from '../models/app.model';
-import Build from '../models/build.model';
+import { AppModel } from '../models/app.model';
+import { BuildModel } from '../models/build.model';
+import { AppDto } from '../dtos/AppDto';
+import {
+  CreateAppAccessPasswordIncorrect,
+  CreateAppAccessPasswordNotProvided,
+  CreateAppAccessShareLinkNotFound,
+  ShareLinkExpired,
+  ShareLinkInvalid,
+} from '../resources/errorMessages.strings';
+
+export type CreateAppRequestBody = {
+  readonly token: string;
+  readonly password?: string;
+};
+
+type CreateAppResponseDto = {
+  readonly appAccess: {
+    readonly id: number;
+  };
+  readonly token: string;
+};
+
 export interface AppAccessRepository {
-  createAppAccess: (body: any) => Promise<object>;
-  getApp: (appAccessId: number) => Promise<object>;
+  createAppAccess: (
+    jsonBody: CreateAppRequestBody
+  ) => Promise<CreateAppResponseDto>;
+  getApp: (appAccessId: number) => Promise<AppDto>;
 }
 
-const appAccessRepository = (): AppAccessRepository => {
-  return {
-    createAppAccess: async body => {
-      const token = body.token;
-      let payload: string | jwt.JwtPayload = {};
-      try {
-        payload = jwt.verify(token, process.env.SHARE_LINK_JWT_SECRET!, {
-          algorithms: ['HS256'],
-          complete: false,
-        });
-      } catch (error) {
-        if (error instanceof TokenExpiredError) {
-          throw Boom.unauthorized('The link has expired.');
-        } else if (error instanceof JsonWebTokenError) {
-          throw Boom.unauthorized('The link is incorrect.');
-        } else {
-          throw Boom.unauthorized(
+const appAccessRepository = (
+  AppAccess: AppAccessModel,
+  ShareLink: ShareLinkModel,
+  App: AppModel,
+  Build: BuildModel
+): AppAccessRepository => {
+  const decodeShareLinkJwt = (
+    token: string
+  ): [string | null, Boom.Boom<unknown> | null] => {
+    if (!process.env.SHARE_LINK_JWT_SECRET) {
+      return [null, Boom.internal()];
+    }
+
+    let payload: string | jwt.JwtPayload = {};
+    try {
+      payload = jwt.verify(token, process.env.SHARE_LINK_JWT_SECRET, {
+        algorithms: ['HS256'],
+        complete: false,
+      });
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        return [null, Boom.unauthorized(ShareLinkExpired)];
+      } else if (error instanceof JsonWebTokenError) {
+        return [null, Boom.unauthorized(ShareLinkInvalid)];
+      } else {
+        return [
+          null,
+          Boom.unauthorized(
             'An unkown error has occured while processing the link.'
-          );
-        }
+          ),
+        ];
       }
-      const { tid } = payload as { tid: string };
-      const shareLink = await ShareLink.findOne({ where: { tokenId: tid } });
+    }
+    const { tid: tokenId } = payload as { tid: string };
+    if (!tokenId) {
+      return [null, Boom.unauthorized('The link is incorrect.')];
+    }
+
+    return [tokenId, null];
+  };
+
+  const createAppAccessToken = async (
+    appAccessId: number,
+    shareLinkExpirationDate: Date
+  ): Promise<string> => {
+    if (!process.env.APP_ACCESS_JWT_SECRET) {
+      throw Boom.internal();
+    }
+
+    const jwtToken = await promisify<
+      string,
+      Record<string, unknown>,
+      jwt.Secret,
+      jwt.SignOptions
+    >(jwt.sign)(
+      {
+        aai: appAccessId,
+      },
+      process.env.APP_ACCESS_JWT_SECRET,
+      {
+        expiresIn: Math.floor(shareLinkExpirationDate.getTime() / 1000),
+        algorithm: 'HS256',
+      }
+    );
+
+    return jwtToken;
+  };
+
+  return {
+    createAppAccess: async (jsonBody) => {
+      const [tokenId, error] = decodeShareLinkJwt(jsonBody.token);
+      if (error) {
+        throw Boom.badData();
+      }
+
+      const shareLink = await ShareLink.findOne({ where: { tokenId } });
       if (!shareLink) {
-        throw Boom.badRequest('The link appears to be malformed.');
+        throw Boom.badRequest(CreateAppAccessShareLinkNotFound);
       }
-      if (shareLink.hasPassword && !body.password) {
-        throw Boom.badRequest('A valid password is required to open this app.');
+
+      if (shareLink.hasPassword && !jsonBody.password) {
+        throw Boom.badRequest(CreateAppAccessPasswordNotProvided);
       }
-      try {
-        const isPasswordCorrect = await bcrypt.compare(
-          body.password,
-          shareLink.password!
-        );
-        if (!isPasswordCorrect) {
-          throw Boom.badRequest('The entered password is incorrect.');
+
+      if (shareLink.hasPassword && shareLink.password && jsonBody.password) {
+        try {
+          const isPasswordCorrect = await bcrypt.compare(
+            jsonBody.password,
+            shareLink.password
+          );
+          if (!isPasswordCorrect) {
+            throw Boom.badRequest(CreateAppAccessPasswordIncorrect);
+          }
+        } catch (error) {
+          throw Boom.badRequest(CreateAppAccessPasswordIncorrect);
         }
-      } catch (error) {
-        throw Boom.badRequest('The entered password is incorrect.');
       }
 
       const appAccess = await shareLink.createAppAccess();
-      const jwtToken = await promisify<
-        string,
-        object,
-        jwt.Secret,
-        jwt.SignOptions
-      >(jwt.sign)(
-        {
-          aai: appAccess.id,
-        },
-        process.env.APP_ACCESS_JWT_SECRET!,
-        {
-          expiresIn: Math.floor(shareLink.expiresAt.getTime() / 1000),
-          algorithm: 'HS256',
-        }
+      if (!(appAccess && appAccess.id)) {
+        throw Boom.internal();
+      }
+
+      const jwtToken = await createAppAccessToken(
+        appAccess.id,
+        shareLink.expiresAt
       );
-      return { appAccess: { id: appAccess.id }, token: jwtToken };
+
+      return {
+        appAccess: {
+          id: appAccess.id,
+        },
+        token: jwtToken,
+      };
     },
-    getApp: async appAccessId => {
+    getApp: async (appAccessId) => {
       const appAccess = await AppAccess.findByPk(appAccessId, {
         include: {
           model: ShareLink,
@@ -84,7 +163,9 @@ const appAccessRepository = (): AppAccessRepository => {
           ],
         },
       });
-      const json = appAccess?.shareLink?.app?.toJSON();
+
+      const json = <AppDto>appAccess?.shareLink?.app?.toJSON();
+
       if (json) {
         return json;
       } else {

@@ -7,34 +7,45 @@ import {
   HasManyAddAssociationMixin,
 } from 'sequelize';
 import { sequelize } from '../infra/sequelize';
-import Build, { BuildProps } from './build.model';
-import Session from './session.model';
-import ShareLink, { ShareLinkProps } from './shareLink.model';
 
-export interface AppProps extends Model {
+import build, { Build } from './build.model';
+import session from './session.model';
+import shareLink, { ShareLink } from './shareLink.model';
+
+/**
+ * Represents a simulated iPhone model.
+ * @typedef {object} App
+ * @property {number} id - App id
+ * @property {string} name - Name of the app
+ * @property {string} bundleIdentifier - Bundle identifier of the app in the reverse domain format e.g com.company.appshare
+ * @property {string} iconUrl - Url of the app icon image
+ * @property {number} userId - Id of the user associated with this app
+ */
+export interface App extends Model {
   readonly id?: number;
-  readonly userId: number;
   readonly name: string;
   readonly bundleIdentifier: string;
   readonly iconUrl: string;
 
-  readonly createBuild: HasManyCreateAssociationMixin<BuildProps>;
-  readonly addShareLink: HasManyAddAssociationMixin<ShareLinkProps, number>;
+  readonly userId: number;
 
-  readonly builds?: BuildProps[];
-  readonly shareLinks?: ShareLinkProps[];
+  readonly builds?: Build[];
+  readonly shareLinks?: ShareLink[];
+
+  readonly createBuild: HasManyCreateAssociationMixin<Build>;
+  readonly addShareLink: HasManyAddAssociationMixin<ShareLink, number>;
 
   associations: {
-    builds: Association<AppProps, BuildProps>;
-    shareLinks: Association<AppProps, ShareLinkProps>;
+    builds: Association<App, Build>;
+    shareLinks: Association<App, ShareLink>;
   };
 }
 
-export type AppStatic = typeof Model & {
-  new (values?: object, options?: BuildOptions): AppProps;
+export type AppModel = typeof Model & {
+  new (values?: Record<string, unknown>, options?: BuildOptions): App;
 };
 
-const App = <AppStatic>sequelize.define(
+const app = <AppModel>sequelize.define(
   'app',
   {
     id: {
@@ -57,21 +68,21 @@ const App = <AppStatic>sequelize.define(
   { tableName: 'apps' }
 );
 
-App.hasMany(Build, {
+app.hasMany(build, {
   sourceKey: 'id',
   foreignKey: 'appId',
   as: 'builds',
 });
-Build.belongsTo(App);
+build.belongsTo(app);
 
-App.hasMany(ShareLink, {
+app.hasMany(build, {
   sourceKey: 'id',
   foreignKey: 'appId',
   as: 'shareLinks',
 });
-ShareLink.belongsTo(App);
+shareLink.belongsTo(app);
 
-App.hasMany(Session);
-Session.belongsTo(App);
+app.hasMany(session);
+session.belongsTo(app);
 
-export default App;
+export default app;

@@ -1,21 +1,28 @@
 import { DataTypes, Model, BuildOptions, Association } from 'sequelize';
 import { sequelize } from '../infra/sequelize';
-import { ShareLinkProps } from './shareLink.model';
+import { ShareLink } from './shareLink.model';
 
-export interface AppAccessProps extends Model {
+/**
+ * Represents an access to an app required for starting a simulator session.
+ * @typedef {object} AppAccess
+ * @property {number} id - App access id
+ */
+export interface AppAccess extends Model {
   readonly id?: number;
   readonly shareLinkId: number;
-  readonly shareLink?: ShareLinkProps;
+
+  readonly shareLink?: ShareLink;
+
   associations: {
-    shareLink: Association<AppAccessProps, ShareLinkProps>;
+    shareLink: Association<AppAccess, ShareLink>;
   };
 }
 
-export type AppAccessStatic = typeof Model & {
-  new (values?: object, options?: BuildOptions): AppAccessProps;
+export type AppAccessModel = typeof Model & {
+  new (values?: Record<string, unknown>, options?: BuildOptions): AppAccess;
 };
 
-const AppAccess = <AppAccessStatic>sequelize.define(
+const appAccess = <AppAccessModel>sequelize.define(
   'appAccess',
   {
     id: {
@@ -29,4 +36,4 @@ const AppAccess = <AppAccessStatic>sequelize.define(
   }
 );
 
-export default AppAccess;
+export default appAccess;

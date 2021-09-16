@@ -1,7 +1,18 @@
 import { DataTypes, Model, BuildOptions } from 'sequelize';
 import { sequelize } from '../infra/sequelize';
 
-export interface DeviceProps extends Model {
+/**
+ * Represents a simulated iPhone model.
+ * @typedef {object} Device
+ * @property {number} id - Device id
+ * @property {string} name - Device name. e.g. iPhone 8
+ * @property {string} systemVersion - Operating system that the device is using. e.g iOS 14.4
+ * @property {string} previewImageUrl - Url of the image that portraits the iPhone model
+ * @property {number} screenWidth - Device screen width in pixels
+ * @property {number} screenHeight - Device screen height in pixels
+ * @property {string} blueprintId - Represents an unique string describing this device.
+ */
+export interface Device extends Model {
   readonly id?: number;
   readonly name: string;
   readonly systemVersion: string;
@@ -10,11 +21,12 @@ export interface DeviceProps extends Model {
   readonly screenHeight?: number;
   readonly blueprintId?: string;
 }
-export type DeviceStatic = typeof Model & {
-  new (values?: object, options?: BuildOptions): DeviceProps;
+
+export type DeviceModel = typeof Model & {
+  new (values?: Record<string, unknown>, options?: BuildOptions): Device;
 };
 
-const Device = <DeviceStatic>sequelize.define(
+const device = <DeviceModel>sequelize.define(
   'device',
   {
     id: {
@@ -47,4 +59,4 @@ const Device = <DeviceStatic>sequelize.define(
   { tableName: 'devices' }
 );
 
-export default Device;
+export default device;

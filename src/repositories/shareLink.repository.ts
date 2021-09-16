@@ -1,20 +1,24 @@
 import Boom from '@hapi/boom';
-import ShareLink from '../models/shareLink.model';
+import { ShareLinkDto } from '../dtos/ShareLinkDto';
+import { ShareLinkModel } from '../models/shareLink.model';
 
 export interface ShareLinkRepository {
-  getShareLinkByTokenId: (tokenId: string) => Promise<object>;
+  getShareLinkByTokenId: (tokenId: string) => Promise<ShareLinkDto>;
 }
 
-const shareLinkRepository = (): ShareLinkRepository => {
+const shareLinkRepository = (
+  ShareLink: ShareLinkModel
+): ShareLinkRepository => {
   return {
-    getShareLinkByTokenId: async tokenId => {
+    getShareLinkByTokenId: async (tokenId) => {
       const shareLink = await ShareLink.findOne({
         where: { tokenId },
         attributes: ['hasPassword'],
       });
 
       if (!shareLink) throw Boom.notFound();
-      return shareLink.toJSON();
+
+      return <ShareLinkDto>shareLink.toJSON();
     },
   };
 };

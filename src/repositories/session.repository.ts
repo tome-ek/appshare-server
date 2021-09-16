@@ -1,23 +1,31 @@
 import { nanoid } from 'nanoid';
-import Session from '../models/session.model';
+import { SessionDto } from '../dtos/SessionDto';
+import { SessionModel } from '../models/session.model';
+
+type CreateSessionRequestDto = {
+  readonly buildId: number;
+  readonly appId: number;
+  readonly deviceId: number;
+};
 
 export interface SessionRepository {
-  createSession: (session: any, userId: number) => Promise<object>;
-  getSessions: () => Promise<object[]>;
+  createSession: (
+    jsonBody: CreateSessionRequestDto,
+    userId: number
+  ) => Promise<SessionDto>;
 }
 
-const sessionRepository = (): SessionRepository => {
+const sessionRepository = (Session: SessionModel): SessionRepository => {
   return {
     createSession: async (sessionJson, userId) => {
-      const sessionId = nanoid(8);
+      const sessionId = nanoid(6);
       const session = await Session.create({
         userId,
         sessionId,
         ...sessionJson,
       });
-      return session.toJSON();
+      return <SessionDto>session.toJSON();
     },
-    getSessions: async () => Session.findAll(),
   };
 };
 

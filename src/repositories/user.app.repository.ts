@@ -1,56 +1,66 @@
 import Boom from '@hapi/boom';
-import App from '../models/app.model';
-import Build from '../models/build.model';
-import User from '../models/user.model';
+import { AppDto } from '../dtos/AppDto';
+import { AppModel } from '../models/app.model';
+import { BuildModel } from '../models/build.model';
+import { UserModel } from '../models/user.model';
 
-type CreateAppBuildParams = {
-  name: string;
-  bundleIdentifier: string;
-  iconUrl?: string;
-  builds: [
+export type AppBuild = {
+  readonly name: string;
+  readonly bundleIdentifier: string;
+  readonly iconUrl?: string;
+  readonly builds: [
     {
-      version: string;
-      buildNumber: string;
-      bundleUrl?: string;
-      iv?: string;
-      authTag?: string;
+      readonly version: string;
+      readonly buildNumber: string;
+      readonly bundleName: string;
+      readonly bundleUrl?: string;
+      readonly iv?: string;
+      readonly authTag?: string;
     }
   ];
 };
 
 export interface UserAppRepository {
-  createAppBuild: (
-    userId: number,
-    params: CreateAppBuildParams
-  ) => Promise<object>;
-  getApps: (userId: number) => Promise<object[]>;
+  createAppBuild: (userId: number, build: AppBuild) => Promise<AppDto>;
+  getApps: (userId: number) => Promise<AppDto[]>;
 }
 
-const userAppRepository = (): UserAppRepository => {
+const userAppRepository = (
+  User: UserModel,
+  App: AppModel,
+  Build: BuildModel
+): UserAppRepository => {
   return {
-    createAppBuild: async (userId, params) => {
+    createAppBuild: async (userId, appBuild) => {
       const user = await User.findByPk(userId);
       if (!user) throw Boom.unauthorized;
+
       const app = await App.findOne({
-        where: { bundleIdentifier: params.bundleIdentifier },
+        where: { bundleIdentifier: appBuild.bundleIdentifier },
         include: [{ model: Build, as: 'builds' }],
       });
-      if (!app) {
-        const app = await user.createApp(params, {
+
+      if (app) {
+        const build = await app.createBuild(appBuild.builds[0]);
+
+        app.builds?.push(build);
+
+        return <AppDto>app.toJSON();
+      } else {
+        const app = await user.createApp(appBuild, {
           include: [{ model: Build, as: 'builds' }],
         });
-        return app.toJSON();
-      } else {
-        const build = await app.createBuild(params.builds[0]);
-        app.builds?.push(build);
-        return app.toJSON();
+
+        return <AppDto>app.toJSON();
       }
     },
-    getApps: async userId =>
-      App.findAll({
+    getApps: async (userId) => {
+      const apps = await App.findAll({
         where: { userId },
         include: [{ model: Build, as: 'builds' }],
-      }),
+      });
+      return apps.map((app) => <AppDto>app.toJSON());
+    },
   };
 };
 

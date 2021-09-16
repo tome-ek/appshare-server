@@ -1,15 +1,40 @@
-import Account from '../models/account.model';
+import { badRequest } from '@hapi/boom';
+import { AccountDto } from '../dtos/AccountDto';
+import { AccountModel } from '../models/account.model';
+import { BetaCodeModel } from '../models/betaCode.model';
+import { CreateAccountInvalidBetaCode } from '../resources/errorMessages.strings';
+
+export type CreateAccountBody = {
+  readonly betaCode: string;
+  readonly firebaseId: string;
+};
 
 export interface AccountRepository {
-  createAccount: (account: any) => Promise<object>;
+  createAccount: (jsonBody: CreateAccountBody) => Promise<AccountDto>;
 }
 
-const accountRepository = (): AccountRepository => {
+const accountRepository = (
+  Account: AccountModel,
+  BetaCode: BetaCodeModel
+): AccountRepository => {
   return {
-    createAccount: async accountJson => {
-      const account = await Account.create(accountJson);
+    createAccount: async (json) => {
+      const betaCode = await BetaCode.findOne({
+        where: { code: json.betaCode },
+      });
+
+      if (!betaCode || betaCode.isRedeemed) {
+        throw badRequest(CreateAccountInvalidBetaCode);
+      }
+
+      const account = await Account.create({ firebaseId: json.firebaseId });
       await account.createUser({});
-      return account.toJSON();
+
+      betaCode.set('isRedeemed', true);
+      await betaCode.save();
+
+      const accountDto = <AccountDto>account.toJSON();
+      return accountDto;
     },
   };
 };

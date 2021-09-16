@@ -8,31 +8,40 @@ import {
   HasManyAddAssociationMixin,
 } from 'sequelize';
 import { sequelize } from '../infra/sequelize';
-import { AccountProps } from './account.model';
-import App, { AppProps } from './app.model';
-import Session from './session.model';
-import ShareLink, { ShareLinkProps } from './shareLink.model';
-export interface UserProps extends Model {
+
+import { Account } from './account.model';
+import app, { App } from './app.model';
+import session from './session.model';
+import shareLink, { ShareLink } from './shareLink.model';
+
+/**
+ * Represents an account of a user.
+ * @typedef {object} User
+ * @property {number} id - User id
+ * @property {number} accountId - Id of the user's Account
+ */
+export interface User extends Model {
   readonly id?: number;
+
   readonly accountId: number;
 
-  readonly getAccount: BelongsToGetAssociationMixin<AccountProps>;
-  readonly createApp: HasManyCreateAssociationMixin<AppProps>;
-  readonly addShareLink: HasManyAddAssociationMixin<ShareLinkProps, number>;
+  readonly shareLinks?: ShareLink[];
+  readonly apps?: App[];
 
-  readonly apps?: AppProps[];
-  readonly shareLinks?: ShareLinkProps[];
+  readonly getAccount: BelongsToGetAssociationMixin<Account>;
+  readonly createApp: HasManyCreateAssociationMixin<App>;
+  readonly addShareLink: HasManyAddAssociationMixin<ShareLink, number>;
 
   associations: {
-    apps: Association<UserProps, AppProps>;
-    shareLinks: Association<UserProps, ShareLinkProps>;
+    apps: Association<User, App>;
+    shareLinks: Association<User, ShareLink>;
   };
 }
-export type UserStatic = typeof Model & {
-  new (values?: object, options?: BuildOptions): UserProps;
+export type UserModel = typeof Model & {
+  new (values?: Record<string, unknown>, options?: BuildOptions): User;
 };
 
-const User = <UserStatic>sequelize.define(
+const user = <UserModel>sequelize.define(
   'user',
   {
     id: {
@@ -44,18 +53,20 @@ const User = <UserStatic>sequelize.define(
   { tableName: 'users' }
 );
 
-User.hasMany(App, {
+user.hasMany(app, {
   sourceKey: 'id',
   foreignKey: 'userId',
   as: 'apps',
 });
-App.belongsTo(User);
 
-User.hasMany(ShareLink, {
+app.belongsTo(user);
+
+user.hasMany(shareLink, {
   sourceKey: 'id',
   foreignKey: 'userId',
   as: 'shareLinks',
 });
-ShareLink.belongsTo(User);
-Session.belongsTo(User);
-export default User;
+shareLink.belongsTo(user);
+session.belongsTo(user);
+
+export default user;

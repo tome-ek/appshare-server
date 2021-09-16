@@ -1,21 +1,19 @@
 import Boom from '@hapi/boom';
-import User from '../models/user.model';
+import { UserDto } from '../dtos/UserDto';
+import { UserModel } from '../models/user.model';
 
 export interface UserRepository {
-  getCurrentUser: (userId: number) => Promise<object>;
-  deleteUser: (userId: number) => Promise<void>;
+  getCurrentUser: (userId: number) => Promise<UserDto>;
 }
 
-const userRepository = (): UserRepository => {
+const userRepository = (User: UserModel): UserRepository => {
   return {
-    getCurrentUser: async userId => {
+    getCurrentUser: async (userId) => {
       const user = await User.findByPk(userId);
       if (!user) throw Boom.unauthorized();
-      return user.toJSON();
-    },
-    deleteUser: async userId => {
-      const user = await User.findByPk(userId);
-      return user?.destroy();
+
+      const userDto = <UserDto>user.toJSON();
+      return userDto;
     },
   };
 };
