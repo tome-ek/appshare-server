@@ -1,5 +1,5 @@
 import { Request, Router } from 'express';
-import { param } from 'express-validator';
+import { body, param } from 'express-validator';
 import { validate } from '../middleware/validate.middleware';
 import { BetaCodeRepository } from '../repositories/betaCode.repository';
 
@@ -21,6 +21,28 @@ const betaCodesController = (
     validate,
     async (req: Request, res) => {
       res.json(await betaCodeRepository.getBetaCodeByCode(req.params.code));
+    }
+  );
+
+  /**
+   * @typedef {object} CreateBetaCodeBody
+   * @property {string} code.required - The invitation code
+   *
+   */
+
+  /**
+   * POST /beta-codes
+   * @tags Beta Codes
+   * @summary Creates a Beta Code.
+   * @param {CreateBetaCodeBody} request.body.required
+   * @return {BetaCode} 201 - Success response - application/json
+   */
+  router.post(
+    '/',
+    body('code').isString().escape().trim().notEmpty(),
+    validate,
+    async (req, res) => {
+      res.status(201).json(await betaCodeRepository.createBetaCode(req.body));
     }
   );
 

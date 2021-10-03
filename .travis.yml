@@ -1,3 +1,14 @@
 language: node_js
 node_js:
-  - 16
+- 16
+before_install:
+- openssl aes-256-cbc -K $encrypted_db2095f63ba3_key -iv $encrypted_db2095f63ba3_iv
+  -in deploy_rsa.enc -out deploy_rsa -d
+deploy:
+  provider: heroku
+  api_key:
+    secure: blX0pphaur+1Ee1RZWL9rM7b+7JzmldCqHD+xOaz4ZP6HSt0dU1E8EOy8GlgW8TgURMXfl0vXTZn6VvVDos0icgsa3lknMpjRyGMRSZJZ3Nof3Cyj/dTylwEqG29dXSOshQ3aB26pazNNL6MMcOPy0c1zAoGHR8DkZKaqaZzsHK1tKTJiMdDZkR6nkYUPm+zg3GAcj9F+uvvTu1t2Gi3XB99wOPehG4fA5FmSntxKJQWrOyJutWDR7GDekQNJyx4d6EuO64xMOnqvfpvJweFi7qKifF35s2OvXRvqi9H1DpA6CSZC0gV5Bw/0jUv3C1IiFRD4WbBuMo5gnAc/qZY+yu012AEV3fX1m3bM+EIecU7ysaXunQgUIMIri0CakZnUTDtqjZ37MswakNN0XJkPJ/HH5EhnWRmQfEC+z06Bom2cf+LZGjmByP3VGBpqCf851hh9+zG55//ccfaVyM0/JHgQ2IYyiiZ/qosqsryGBCh2d3zYJxHqEnzPqQEnzADDrS61Hv5g71bLQJWDTRubh8btSRWjK4A5gCSzzhzGKyRV7JM1NwInepBpGTOIvpUbuIoIN1bVeoXyj0/ZU3p7+X7tB0w0m2g5OdJXHc5mJriMuNUx3Z0Akd6kUA3f5gz+DDQOICpGPS9cR8L6QeBSmRhw8JzeJy37I7o7LBjesM=
+  app: api-appshare-dev
+  on:
+    repo: tome-ek/appshare-server
+  skip_cleanup: 'true'

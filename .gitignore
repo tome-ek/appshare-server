@@ -12,3 +12,4 @@ node_modules/
 .env.test
 .env.development
 .DS_Store
+deploy_rsa

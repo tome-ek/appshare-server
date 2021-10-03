@@ -51,4 +51,31 @@ describe('BetaCodeRepository', () => {
       }
     });
   });
+
+  describe('createBetaCode', () => {
+    it('should create betaCode when valid beta code is provided', async () => {
+      // Arrange
+      const expectedBetaCodeDto: BetaCodeDto = {
+        id: 1,
+        code: 'FOOBAR',
+        isRedeemed: false,
+      };
+
+      const betaCode = stubInterface<BetaCode>();
+      betaCode.toJSON.returns(expectedBetaCodeDto);
+
+      const BetaCode = stubInterface<BetaCodeModel>();
+      BetaCode.create.resolves(betaCode);
+
+      const repository = betaCodeRepository(BetaCode);
+
+      // Act
+      const resultBetaCode = await repository.createBetaCode({
+        code: 'FOOBAR',
+      });
+
+      // Assert
+      expect(resultBetaCode).to.be.deep.equal(expectedBetaCodeDto);
+    });
+  });
 });

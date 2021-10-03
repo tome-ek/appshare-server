@@ -49,4 +49,34 @@ describe('BetaCodesController', () => {
         });
     });
   });
+
+  describe('POST /beta-codes', () => {
+    it('should respond with created account and 201 code', async () => {
+      const expectedBetaCode = {
+        code: 'APPSHARE',
+        isRedeemed: false,
+      };
+
+      await request(app)
+        .post('/beta-codes')
+        .send({
+          code: 'APPSHARE',
+        })
+        .expect('Content-Type', /json/)
+        .expect(201)
+        .expect((response) => {
+          expect(response.body).to.containSubset(expectedBetaCode);
+        });
+
+      await BetaCode.destroy({ where: {} });
+    });
+
+    it('should respond with bad request error when the code is not provided', async () => {
+      await request(app)
+        .post('/accounts')
+        .send({})
+        .expect('Content-Type', /json/)
+        .expect(400);
+    });
+  });
 });
