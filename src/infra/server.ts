@@ -43,8 +43,8 @@ export const appshareServer = (): AppshareServer => {
 
       const container = registerDependencies();
 
-      const accountController = container.cradle.accountsController;
       const userController = container.cradle.usersController;
+      const accountController = container.cradle.accountsController;
       const userAppController = container.cradle.usersAppsController;
       const userAppShareLinkController =
         container.cradle.usersAppsShareLinksController;

@@ -42,11 +42,14 @@ export const registerDependencies =
       }
     );
 
+    const fileExt = process.env.NODE_ENV === 'production' ? 'js' : 'ts';
+    const modulesPrefix = process.env.NODE_ENV === 'production' ? '/build' : '';
+
     container.loadModules(
       [
-        './src/repositories/**/*.ts',
-        './src/controllers/**/*.ts',
-        './src/services/**/*.ts',
+        `.${modulesPrefix}/src/repositories/**/*.${fileExt}`,
+        `.${modulesPrefix}/src/controllers/**/*.${fileExt}`,
+        `.${modulesPrefix}/src/services/**/*.${fileExt}`,
       ],
       {
         formatName: (name) => camelCase(name),
@@ -56,7 +59,7 @@ export const registerDependencies =
       }
     );
 
-    container.loadModules(['./src/models/**/*.ts'], {
+    container.loadModules([`.${modulesPrefix}/src/models/**/*.${fileExt}`], {
       formatName: (name) => {
         const val = name.substr(0, name.length - 6);
         return val.charAt(0).toUpperCase() + val.slice(1);
