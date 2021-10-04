@@ -1,10 +1,12 @@
 import { Request, Router } from 'express';
 import { body, param } from 'express-validator';
+import { Authorization } from '../middleware/authorization.middleware';
 import { validate } from '../middleware/validate.middleware';
 import { BetaCodeRepository } from '../repositories/betaCode.repository';
 
 const betaCodesController = (
-  betaCodeRepository: BetaCodeRepository
+  betaCodeRepository: BetaCodeRepository,
+  authorize: Authorization
 ): Router => {
   const router = Router();
 
@@ -34,11 +36,13 @@ const betaCodesController = (
    * POST /beta-codes
    * @tags Beta Codes
    * @summary Creates a Beta Code.
+   * @security Jwt
    * @param {CreateBetaCodeBody} request.body.required
    * @return {BetaCode} 201 - Success response - application/json
    */
   router.post(
     '/',
+    authorize('jwt'),
     body('code').isString().escape().trim().notEmpty(),
     validate,
     async (req, res) => {

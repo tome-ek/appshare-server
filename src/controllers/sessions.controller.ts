@@ -22,6 +22,7 @@ const sessionsController = (
    * POST /sessions
    * @tags Sessions
    * @summary Creates a new session.
+   * @security Jwt | AppAccess
    * @param {CreateSessionBody} request.body.required
    * @return {Session} 201 - Success response - application/json
    */

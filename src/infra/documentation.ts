@@ -24,6 +24,24 @@ export const documentationController = (app: Express): void => {
     ],
     baseDir: __dirname,
     filesPattern: filesPattern,
+    security: {
+      Jwt: {
+        type: 'http',
+        scheme: 'bearer',
+      },
+      AppAccess: {
+        type: 'http',
+        scheme: 'bearer',
+      },
+      ApiKey: {
+        type: 'http',
+        scheme: 'bearer',
+      },
+      ShareLink: {
+        type: 'http',
+        scheme: 'bearer',
+      },
+    },
     swaggerUIPath: '/docs',
     exposeSwaggerUI: true,
     exposeApiDocs: false,

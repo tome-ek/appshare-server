@@ -12,6 +12,7 @@ const usersController = (
    * GET /users/me
    * @tags Users
    * @summary Returns the user associated with the authorization token
+   * @security Jwt
    * @return {User} 200 - Success response - application/json
    */
   router.get('/me', authorize('jwt'), async (req, res) => {

@@ -27,6 +27,7 @@ const usersAppsController = (
    * GET /users/:userId/apps
    * @tags Users
    * @param {number} userId.params - Id of the user
+   * @security Jwt
    * @summary Returns all apps associated with the user.
    * @return {array<App>} 200 - Success response - application/json
    */
@@ -45,6 +46,7 @@ const usersAppsController = (
    * @tags Apps
    * @param {file} app.form.required - The zipped build of the app - multipart/form-data
    * @summary Create a new app for the user.
+   * @security Jwt
    * @return {App} 201 - Success response - application/json
    */
   router.post(

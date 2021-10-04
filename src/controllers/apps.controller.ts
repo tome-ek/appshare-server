@@ -14,6 +14,7 @@ const appsController = (
    * GET /apps/:appId
    * @tags Apps
    * @summary Returns the requested app.
+   * @security Jwt
    * @param {number} appId.params - Id of the app
    * @return {App} 200 - Success response - application/json
    */
@@ -30,6 +31,7 @@ const appsController = (
    * DELETE /apps/:appId
    * @tags Apps
    * @summary Deletes the app and all associated build files.
+   * @security Jwt
    * @param {number} appId.params - Id of the app
    * @return {string} 204 - Success response
    */

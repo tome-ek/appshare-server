@@ -14,6 +14,7 @@ const buildsController = (
    * GET /builds/:buildId
    * @tags Builds
    * @summary Returns the requested build
+   * @security ApiKey
    * @param {number} buildId.params - Id of the build
    * @return {Build} 200 - Success response - application/json
    */

@@ -12,6 +12,7 @@ const shareLinksController = (
    * GET /share-links
    * @tags Share Links
    * @summary Returns a share link associated with the share link token.
+   * @security ShareLink
    * @return {ShareLink} 200 - Success response - application/json
    */
   router.get('/', authorize('shareLink'), async (req: Request, res) => {

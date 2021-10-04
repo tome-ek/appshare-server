@@ -26,6 +26,7 @@ const appAccessesController = (
    * POST /app-accesses
    * @tags App accesses
    * @summary Creates a new app access.
+   * @security Jwt
    * @param {CreateAppAccessBody} request.body.required
    * @return {CreateAppAccessResponse} 201 - Success response - application/json
    */
@@ -50,6 +51,7 @@ const appAccessesController = (
    * GET /app-accesses/:appAccessId/share-link/app
    * @tags App accesses
    * @summary Returns the app associated with the share link of the app access
+   * @security AppAccess
    * @param {number} appAccessId.params - Id of the app access
    * @return {App} 200 - Success response - application/json
    */
@@ -58,6 +60,7 @@ const appAccessesController = (
     param('appAccessId').isInt(),
     validate,
     authorize('appAccess'),
+
     async (req, res) => {
       res
         .status(200)
