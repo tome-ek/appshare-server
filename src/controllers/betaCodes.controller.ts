@@ -42,7 +42,7 @@ const betaCodesController = (
    */
   router.post(
     '/',
-    authorize('jwt'),
+    authorize('apiKey'),
     body('code').isString().escape().trim().notEmpty(),
     validate,
     async (req, res) => {

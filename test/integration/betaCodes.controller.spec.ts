@@ -62,6 +62,7 @@ describe('BetaCodesController', () => {
         .send({
           code: 'APPSHARE',
         })
+        .set('Authorization', 'Bearer ' + process.env.API_KEY)
         .expect('Content-Type', /json/)
         .expect(201)
         .expect((response) => {
@@ -75,6 +76,7 @@ describe('BetaCodesController', () => {
       await request(app)
         .post('/accounts')
         .send({})
+        .set('Authorization', 'Bearer ' + process.env.API_KEY)
         .expect('Content-Type', /json/)
         .expect(400);
     });

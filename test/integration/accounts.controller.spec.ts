@@ -90,10 +90,10 @@ describe('AccountsController', () => {
     });
   });
 
-  describe('POST /accounts/refresh-tokens', () => {
+  describe('POST /accounts/id-tokens', () => {
     it('should respond with refresh token and 200 code', async () => {
       await request(app)
-        .post('/accounts/refresh-tokens')
+        .post('/accounts/id-tokens')
         .send({
           email: 'test.user1@appshare.dev',
           password: 'Password1',
@@ -102,46 +102,17 @@ describe('AccountsController', () => {
         .expect('Content-Type', /json/)
         .expect(200)
         .expect((response) => {
-          expect(response.body).to.have.property('refreshToken').that.is.a
-            .string;
+          expect(response.body).to.have.property('idToken').that.is.a.string;
         });
     });
 
     it('should respond with error code 400 when credentials do not match', async () => {
       await request(app)
-        .post('/accounts/refresh-tokens')
+        .post('/accounts/id-tokens')
         .send({
           email: 'invalid@email.com',
           password: 'Password1',
           returnSecureToken: true,
-        })
-        .expect('Content-Type', /json/)
-        .expect(400)
-        .expect((response) => {
-          expect(response.body).to.have.property('error').that.is.an('object');
-        });
-    });
-  });
-
-  describe('POST /accounts/id-tokens', () => {
-    it('should respond with id token and 200 code', async () => {
-      await request(app)
-        .post('/accounts/id-tokens')
-        .send({
-          refreshToken: process.env.FIR_TEST_REFRESH_TOKEN,
-        })
-        .expect('Content-Type', /json/)
-        .expect(200)
-        .expect((response) => {
-          expect(response.body).to.have.property('idToken').that.is.a.string;
-        });
-    });
-
-    it('should respond with error code 400 when refresh token is invalid', async () => {
-      await request(app)
-        .post('/accounts/id-tokens')
-        .send({
-          refreshToken: 'invalid',
         })
         .expect('Content-Type', /json/)
         .expect(400)
