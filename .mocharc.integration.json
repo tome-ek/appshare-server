@@ -6,5 +6,6 @@
     "test/integration/global.hooks.ts"
   ],
   "parallel": false,
-  "slow": 5000
+  "timeout": 5000,
+  "slow": 3000
 }
