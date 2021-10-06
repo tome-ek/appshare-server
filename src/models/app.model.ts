@@ -20,6 +20,7 @@ import shareLink, { ShareLink } from './shareLink.model';
  * @property {string} bundleIdentifier - Bundle identifier of the app in the reverse domain format e.g com.company.appshare
  * @property {string} iconUrl - Url of the app icon image
  * @property {number} userId - Id of the user associated with this app
+ * @property {array<Build>} builds - every uploaded build for this app
  */
 export interface App extends Model {
   readonly id?: number;
