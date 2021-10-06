@@ -82,9 +82,12 @@ const usersAppsController = (
         `bundles/${plist.app.bundleIdentifier}/${req.file?.filename}.enc`
       );
 
-      await del([`./storage/${dirName}`], { dryRun: false });
-      await del([`./storage/${req.file?.filename}`], { dryRun: false });
-      await del([`./storage/${req.file?.filename}.enc`], { dryRun: false });
+      await del([`/tmp/${dirName}`], { dryRun: false, force: true });
+      await del([`/tmp/${req.file?.filename}`], { dryRun: false, force: true });
+      await del([`/tmp/${req.file?.filename}.enc`], {
+        dryRun: false,
+        force: true,
+      });
 
       const json = await userAppRepository.createAppBuild(
         Number(req.params.userId),

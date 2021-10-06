@@ -45,7 +45,7 @@ const filesService = (decompress: UnzipFunction): FilesService => {
   return {
     unzipAppBundle: async (filePath, dirName) => {
       return (
-        await decompress(filePath, `./storage/${dirName}`, {
+        await decompress(filePath, `/tmp/${dirName}`, {
           filter: (file) => {
             return (
               (file.path.endsWith('Info.plist') ||
@@ -54,7 +54,7 @@ const filesService = (decompress: UnzipFunction): FilesService => {
             );
           },
         })
-      ).map((f) => `./storage/${dirName}/${f.path}`);
+      ).map((f) => `/tmp/${dirName}/${f.path}`);
     },
     readPlist: async (paths) => {
       const appMetadata = await promisify<AppMetadata, string | undefined>(

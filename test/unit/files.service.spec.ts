@@ -22,11 +22,11 @@ describe('FilesService', () => {
   describe('unzipAppBundle', () => {
     it('should unzip the app bundle and return its Info.plist and icons', async () => {
       // Arrange
-      const outputDirectory = 'directyName';
+      const outputDirectory = 'directoryName';
       const expectedFilePaths = [
-        `./storage/${outputDirectory}/Appshare.app/Info.plist`,
-        `./storage/${outputDirectory}/Appshare.app/Icon1.png`,
-        `./storage/${outputDirectory}/Appshare.app/Icon2.png`,
+        `/tmp/${outputDirectory}/Appshare.app/Info.plist`,
+        `/tmp/${outputDirectory}/Appshare.app/Icon1.png`,
+        `/tmp/${outputDirectory}/Appshare.app/Icon2.png`,
       ];
 
       const unzippedFilesPaths = [
