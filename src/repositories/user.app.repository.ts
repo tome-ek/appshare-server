@@ -16,6 +16,8 @@ export type AppBuild = {
       readonly bundleUrl?: string;
       readonly iv?: string;
       readonly authTag?: string;
+      readonly bundleIdentifier?: string;
+      readonly fileName?: string;
     }
   ];
 };

@@ -89,6 +89,7 @@ const usersAppsController = (
         force: true,
       });
 
+      console.log(plist.build);
       const json = await userAppRepository.createAppBuild(
         Number(req.params.userId),
         {
@@ -99,6 +100,8 @@ const usersAppsController = (
               bundleUrl,
               iv: encryptionResult.iv,
               authTag: encryptionResult.authTag,
+              fileName: req.file?.filename,
+              bundleIdentifier: plist.app.bundleIdentifier,
               ...plist.build,
             },
           ],
