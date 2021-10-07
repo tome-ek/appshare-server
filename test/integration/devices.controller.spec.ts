@@ -49,4 +49,45 @@ describe('DevicesController', () => {
       await Device.destroy({ where: {} });
     });
   });
+
+  describe('POST /devices', () => {
+    it('should respond with created device and 201 code', async () => {
+      const expectedDevice = {
+        name: 'iPhone 8 Plus',
+        systemVersion: 'iOS 14.4',
+        previewImageUrl: 'https://appshare.dev/iphone8plus.png',
+        screenWidth: 360,
+        screenHeight: 640,
+        blueprintId: 'iphone8',
+      };
+
+      await request(app)
+        .post('/devices')
+        .send({
+          name: 'iPhone 8 Plus',
+          systemVersion: 'iOS 14.4',
+          previewImageUrl: 'https://appshare.dev/iphone8plus.png',
+          screenWidth: 360,
+          screenHeight: 640,
+          blueprintId: 'iphone8',
+        })
+        .set('Authorization', 'Bearer ' + process.env.API_KEY)
+        .expect('Content-Type', /json/)
+        .expect(201)
+        .expect((response) => {
+          expect(response.body).to.containSubset(expectedDevice);
+        });
+
+      await Device.destroy({ where: {} });
+    });
+
+    it('should respond with bad request error when no body is provided', async () => {
+      await request(app)
+        .post('/devices')
+        .send({})
+        .set('Authorization', 'Bearer ' + process.env.API_KEY)
+        .expect('Content-Type', /json/)
+        .expect(400);
+    });
+  });
 });

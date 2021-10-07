@@ -36,7 +36,7 @@ const betaCodesController = (
    * POST /beta-codes
    * @tags Beta Codes
    * @summary Creates a Beta Code.
-   * @security Jwt
+   * @security ApiKey
    * @param {CreateBetaCodeBody} request.body.required
    * @return {BetaCode} 201 - Success response - application/json
    */

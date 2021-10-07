@@ -51,7 +51,7 @@ describe('BetaCodesController', () => {
   });
 
   describe('POST /beta-codes', () => {
-    it('should respond with created account and 201 code', async () => {
+    it('should respond with created beta code and 201 code', async () => {
       const expectedBetaCode = {
         code: 'APPSHARE',
         isRedeemed: false,
@@ -74,7 +74,7 @@ describe('BetaCodesController', () => {
 
     it('should respond with bad request error when the code is not provided', async () => {
       await request(app)
-        .post('/accounts')
+        .post('/devices')
         .send({})
         .set('Authorization', 'Bearer ' + process.env.API_KEY)
         .expect('Content-Type', /json/)

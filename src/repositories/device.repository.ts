@@ -17,10 +17,8 @@ export interface DeviceRepository {
 
 const deviceRepository = (Device: DeviceModel): DeviceRepository => {
   return {
-    createDevice: async (deviceJson) => {
-      const device = await Device.create(deviceJson);
-      return <DeviceDto>device.toJSON();
-    },
+    createDevice: async (deviceJson) =>
+      <DeviceDto>(await Device.create(deviceJson)).toJSON(),
     getDevices: async () => {
       return (await Device.findAll()).map(
         (device) => <DeviceDto>device.toJSON()
