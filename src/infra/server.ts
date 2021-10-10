@@ -55,13 +55,14 @@ export const appshareServer = (): AppshareServer => {
       const buildController = container.cradle.buildsController;
       const sessionController = container.cradle.sessionsController;
       const betaCodeController = container.cradle.betaCodesController;
+      const usersBuildsController = container.cradle.usersBuildsController;
 
       /* API routes */
       app.use('/accounts', accountController);
-
       app.use('/users', userController);
       app.use('/users', userAppController);
       app.use('/users', userAppShareLinkController);
+      app.use('/users', usersBuildsController);
       app.use('/apps', appController);
       app.use('/builds', buildController);
       app.use('/devices', deviceController);

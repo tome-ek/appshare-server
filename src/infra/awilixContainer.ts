@@ -31,6 +31,7 @@ type ApplicationDepencencies = {
   buildsController: Router;
   sessionsController: Router;
   betaCodesController: Router;
+  usersBuildsController: Router;
   webSocketsServer: WebSockets;
 };
 

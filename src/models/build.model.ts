@@ -1,5 +1,6 @@
 import { DataTypes, Model, BuildOptions } from 'sequelize';
 import { sequelize } from '../infra/sequelize';
+import { App } from './app.model';
 
 /**
  * Represents a single build of an app.
@@ -27,6 +28,7 @@ export interface Build extends Model {
   readonly authTag?: string;
 
   readonly appId: number;
+  readonly app?: App;
 }
 export type BuildModel = typeof Model & {
   new (values?: Record<string, unknown>, options?: BuildOptions): Build;
