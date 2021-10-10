@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import { Authorization } from '../middleware/authorization.middleware';
-import { param } from 'express-validator';
+import { param, query } from 'express-validator';
 import { validate } from '../middleware/validate.middleware';
 import { UsersBuildsRepository } from '../repositories/users.builds.repository';
+import { parseFilters } from '../middleware/parseFilters.middleware';
 
 const usersBuildsController = (
   usersBuildsRepository: UsersBuildsRepository,
@@ -22,10 +23,15 @@ const usersBuildsController = (
     '/:userId/builds',
     authorize('jwt'),
     param('userId').isInt({ min: 1 }),
+    query('sort').isString().isIn(['createdAt', '-createdAt']).optional(true),
     validate,
+    parseFilters,
     async (req, res) => {
       res.json(
-        await usersBuildsRepository.getBuilds(Number(req.params.userId))
+        await usersBuildsRepository.getBuilds(
+          Number(req.params.userId),
+          req.query.sort as [string, 'ASC' | 'DESC'] | undefined
+        )
       );
     }
   );
