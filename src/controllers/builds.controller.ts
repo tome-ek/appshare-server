@@ -14,7 +14,7 @@ const buildsController = (
    * GET /builds/:buildId
    * @tags Builds
    * @summary Returns the requested build
-   * @security ApiKey
+   * @security Jwt | ApiKey
    * @param {number} buildId.params - Id of the build
    * @return {Build} 200 - Success response - application/json
    */
@@ -22,9 +22,14 @@ const buildsController = (
     '/:buildId',
     param('buildId').isInt({ min: 1 }),
     validate,
-    authorize('apiKey'),
+    authorize('apiKey', 'jwt'),
     async (req: Request, res) => {
-      res.json(await buildRepository.getBuild(Number(req.params.buildId)));
+      res.json(
+        await buildRepository.getBuild(
+          Number(req.params.buildId),
+          Number(req.params._userId)
+        )
+      );
     }
   );
 
