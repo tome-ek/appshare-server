@@ -24,14 +24,15 @@ const usersBuildsController = (
     authorize('jwt'),
     param('userId').isInt({ min: 1 }),
     query('sort').isString().isIn(['createdAt', '-createdAt']).optional(true),
+    query('limit').isInt({ min: 1 }).optional(true),
     validate,
     parseFilters,
     async (req, res) => {
       res.json(
-        await usersBuildsRepository.getBuilds(
-          Number(req.params.userId),
-          req.query.sort as [string, 'ASC' | 'DESC'] | undefined
-        )
+        await usersBuildsRepository.getBuilds(Number(req.params.userId), {
+          sort: req.query.sort as [string, string],
+          limit: req.query.limit as number | undefined,
+        })
       );
     }
   );

@@ -2,13 +2,21 @@ import { BuildDto } from '../dtos/BuildDto';
 import App from '../models/app.model';
 import { BuildModel } from '../models/build.model';
 
+export type GetBuildsOptions = {
+  sort?: [string, string];
+  limit?: number;
+};
+
 export interface UsersBuildsRepository {
-  getBuilds: (userId: number, sort?: [string, string]) => Promise<BuildDto[]>;
+  getBuilds: (
+    userId: number,
+    options?: GetBuildsOptions
+  ) => Promise<BuildDto[]>;
 }
 
 const usersBuildsRepository = (Build: BuildModel): UsersBuildsRepository => {
   return {
-    getBuilds: async (userId, sort) => {
+    getBuilds: async (userId, options = {}) => {
       const builds = await Build.findAll({
         include: {
           model: App,
@@ -16,7 +24,8 @@ const usersBuildsRepository = (Build: BuildModel): UsersBuildsRepository => {
             userId,
           },
         },
-        order: sort && [sort],
+        order: options.sort && [options.sort],
+        limit: options.limit,
       });
 
       return builds.map((app) => <BuildDto>app.toJSON());
