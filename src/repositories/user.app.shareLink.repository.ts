@@ -1,11 +1,11 @@
 import Boom from '@hapi/boom';
 import jwt from 'jsonwebtoken';
 import ms from 'ms';
-import { promisify } from 'bluebird';
-import { nanoid } from 'nanoid';
 import App from '../models/app.model';
 import ShareLink from '../models/shareLink.model';
 import User from '../models/user.model';
+import { promisify } from 'bluebird';
+import { nanoid } from 'nanoid';
 import { ShareLinkDto } from '../dtos/ShareLinkDto';
 
 type CreateShareLinkRequestBody = {
@@ -28,7 +28,7 @@ const userAppShareLinkRepository = (): UserAppShareLinkRepository => {
     expiresAt: string
   ): Promise<string> => {
     if (!process.env.SHARE_LINK_JWT_SECRET) {
-      throw Boom.badGateway();
+      throw Boom.badImplementation();
     }
 
     const token = await promisify<

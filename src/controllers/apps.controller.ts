@@ -1,6 +1,8 @@
 import { Request, Router } from 'express';
+import { param } from 'express-validator';
 import { userOwns } from '../middleware/accessControll.middleware';
 import { Authorization } from '../middleware/authorization.middleware';
+import { validate } from '../middleware/validate.middleware';
 import App from '../models/app.model';
 import { AppRepository } from '../repositories/app.repository';
 
@@ -20,6 +22,8 @@ const appsController = (
    */
   router.get(
     '/:appId',
+    param('appId').isInt({ min: 1 }),
+    validate,
     authorize('jwt'),
     userOwns([App, 'appId']),
     async (req: Request, res) => {
@@ -37,6 +41,8 @@ const appsController = (
    */
   router.delete(
     '/:appId',
+    param('appId').isInt({ min: 1 }),
+    validate,
     authorize('jwt'),
     userOwns([App, 'appId']),
     async (req: Request, res) => {

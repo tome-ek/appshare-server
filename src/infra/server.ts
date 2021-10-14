@@ -46,7 +46,7 @@ export const appshareServer = (): AppshareServer => {
       const userController = container.cradle.usersController;
       const accountController = container.cradle.accountsController;
       const userAppController = container.cradle.usersAppsController;
-      const userAppShareLinkController =
+      const usersAppsShareLinksController =
         container.cradle.usersAppsShareLinksController;
       const appController = container.cradle.appsController;
       const deviceController = container.cradle.devicesController;
@@ -61,7 +61,7 @@ export const appshareServer = (): AppshareServer => {
       app.use('/accounts', accountController);
       app.use('/users', userController);
       app.use('/users', userAppController);
-      app.use('/users', userAppShareLinkController);
+      app.use('/users', usersAppsShareLinksController);
       app.use('/users', usersBuildsController);
       app.use('/apps', appController);
       app.use('/builds', buildController);

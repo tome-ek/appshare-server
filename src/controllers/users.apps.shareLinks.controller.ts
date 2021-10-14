@@ -20,7 +20,7 @@ const usersAppsShareLinksController = (
    */
 
   /**
-   * POST /:userId/apps/:appId/share-links
+   * POST /users/:userId/apps/:appId/share-links
    * @tags Share Links
    * @summary Creates a new share link for the app.
    * @security Jwt

@@ -60,7 +60,6 @@ const appAccessesController = (
     param('appAccessId').isInt(),
     validate,
     authorize('appAccess'),
-
     async (req, res) => {
       res
         .status(200)
