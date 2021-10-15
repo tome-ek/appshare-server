@@ -1,3 +1,5 @@
+import { AppDto } from './AppDto';
+
 export type BuildDto = {
   readonly id: number;
   readonly appId: number;
@@ -9,4 +11,5 @@ export type BuildDto = {
   readonly bundleName: string;
   readonly iv?: string;
   readonly authTag?: string;
+  readonly app?: AppDto;
 };
