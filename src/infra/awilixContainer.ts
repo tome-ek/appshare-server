@@ -21,6 +21,7 @@ import webSocketsServer, { WebSockets } from './websockets';
 
 type ApplicationDepencencies = {
   accountsController: Router;
+  appsBuildsController: Router;
   usersController: Router;
   usersAppsController: Router;
   usersAppsShareLinksController: Router;

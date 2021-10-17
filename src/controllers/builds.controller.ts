@@ -54,6 +54,7 @@ const buildsController = (
         Number(req.params._userId)
       );
 
+
       await bucket.deleteFiles({
         prefix: `bundles/${deletedBuild.bundleIdentifier}/${deletedBuild.fileName}`,
       });
