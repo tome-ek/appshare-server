@@ -9,14 +9,17 @@ if (!process.env.POSTGRESQL_URL) {
 
 export const sequelize = new Sequelize(process.env.POSTGRESQL_URL, {
   logging: false,
+  dialect: 'postgres',
 });
 
 export const connectDatabase = async (): Promise<void> => {
   sequelize
     .authenticate()
     .then(() => {
-      if (process.env.NODE_ENV !== 'test') {
+      if (process.env.NODE_ENV === 'development') {
         return sequelize.sync({ alter: true });
+      } else if (process.env.NODE_ENV === 'production') {
+        return sequelize.sync();
       }
     })
     .then(() => log('Sequelize connected.'));
