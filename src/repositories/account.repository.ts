@@ -1,4 +1,4 @@
-import { badRequest } from '@hapi/boom';
+import Boom from '@hapi/boom';
 import { AccountDto } from '../dtos/AccountDto';
 import { AccountModel } from '../models/account.model';
 import { BetaCodeModel } from '../models/betaCode.model';
@@ -24,7 +24,7 @@ const accountRepository = (
       });
 
       if (!betaCode || betaCode.isRedeemed) {
-        throw badRequest(CreateAccountInvalidBetaCode);
+        throw Boom.badRequest(CreateAccountInvalidBetaCode);
       }
 
       const account = await Account.create({ firebaseId: json.firebaseId });

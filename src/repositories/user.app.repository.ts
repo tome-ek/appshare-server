@@ -25,6 +25,9 @@ export type AppBuild = {
 export interface UserAppRepository {
   createAppBuild: (userId: number, build: AppBuild) => Promise<AppDto>;
   getApps: (userId: number) => Promise<AppDto[]>;
+  getAppForBundleIdentifier: (
+    bundleIdentifier: string
+  ) => Promise<AppDto | null>;
 }
 
 const userAppRepository = (
@@ -61,7 +64,16 @@ const userAppRepository = (
         where: { userId },
         include: [{ model: Build, as: 'builds' }],
       });
+
       return apps.map((app) => <AppDto>app.toJSON());
+    },
+    getAppForBundleIdentifier: async (bundleIdentifier) => {
+      const app = await App.findOne({
+        where: { bundleIdentifier },
+        attributes: ['userId'],
+      });
+
+      return <AppDto>app?.toJSON() || null;
     },
   };
 };

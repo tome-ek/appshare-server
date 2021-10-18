@@ -38,3 +38,15 @@ export const userOwns = <ObjectModelAttributes, ObjectCreationAttributes>(
     }
   };
 };
+
+export const userMatches = (userIdParamName = 'userId'): RequestHandler => {
+  return async (req, _res, next) => {
+    const matches =
+      Number(req.params._userId) === Number(req.params[userIdParamName]);
+    if (matches) {
+      next();
+    } else {
+      next(Boom.forbidden());
+    }
+  };
+};

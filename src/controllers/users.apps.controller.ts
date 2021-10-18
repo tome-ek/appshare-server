@@ -10,6 +10,7 @@ import del from 'del';
 import Boom from '@hapi/boom';
 import { param } from 'express-validator';
 import { validate } from '../middleware/validate.middleware';
+import { userMatches } from '../middleware/accessControll.middleware';
 
 const DefaultIconUrl =
   'https://storage.googleapis.com/phone-streamer.appspot.com/images/default.png';
@@ -54,6 +55,7 @@ const usersAppsController = (
     authorize('jwt'),
     param('userId').isInt({ min: 1 }),
     validate,
+    userMatches(),
     singleFile('app'),
     async (req, res, next) => {
       const zipFilePath = req.file?.path;
@@ -82,6 +84,14 @@ const usersAppsController = (
         `bundles/${plist.app.bundleIdentifier}/${req.file?.filename}.enc`
       );
 
+      const existingApp = await userAppRepository.getAppForBundleIdentifier(
+        plist.app.bundleIdentifier
+      );
+
+      if (existingApp && existingApp.userId !== Number(req.params._userId)) {
+        throw Boom.forbidden();
+      }
+
       await del([`/tmp/${dirName}`], { dryRun: false, force: true });
       await del([`/tmp/${req.file?.filename}`], { dryRun: false, force: true });
       await del([`/tmp/${req.file?.filename}.enc`], {
@@ -106,6 +116,7 @@ const usersAppsController = (
           ],
         }
       );
+
       res.status(201).json(json);
     }
   );

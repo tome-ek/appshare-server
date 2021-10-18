@@ -44,8 +44,14 @@ export const registerDependencies =
       }
     );
 
-    const fileExt = process.env.NODE_ENV === 'production' ? 'js' : 'ts';
-    const modulesPrefix = process.env.NODE_ENV === 'production' ? '/build' : '';
+    const fileExt =
+      process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'debug'
+        ? 'js'
+        : 'ts';
+    const modulesPrefix =
+      process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'debug'
+        ? '/build'
+        : '';
 
     container.loadModules(
       [

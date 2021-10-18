@@ -19,7 +19,7 @@ export const connectDatabase = async (): Promise<void> => {
       if (process.env.NODE_ENV === 'development') {
         return sequelize.sync({ alter: true });
       } else if (process.env.NODE_ENV === 'production') {
-        return sequelize.sync();
+        return sequelize.sync({ alter: true });
       }
     })
     .then(() => log('Sequelize connected.'));

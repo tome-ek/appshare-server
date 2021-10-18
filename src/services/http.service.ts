@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { badRequest, Boom } from '@hapi/boom';
+import Boom from '@hapi/boom';
 
 export interface HttpService {
   post: <T>(url: string, body: Body, options?: PostOptions) => Promise<T>;
@@ -33,14 +33,14 @@ const httpService = (): HttpService => {
     return false;
   };
 
-  const createError = (error: AnyError): Boom => {
+  const createError = (error: AnyError): Boom.Boom => {
     if (isErrorObject(error)) {
-      return new Boom(error.message, {
+      return new Boom.Boom(error.message, {
         statusCode: error.code,
       });
     }
 
-    return new Boom(error.message, {
+    return new Boom.Boom(error.message, {
       statusCode: 400,
     });
   };
@@ -70,7 +70,7 @@ const httpService = (): HttpService => {
         if (isAnyError(error)) {
           throw createError(error);
         } else {
-          throw badRequest();
+          throw Boom.badRequest();
         }
       }
     },

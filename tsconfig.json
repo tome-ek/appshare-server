@@ -12,7 +12,8 @@
     "types": ["node"],
     "strict": true,
     "lib": ["es2018"],
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "sourceMap": true
   },
   "ts-node": {
     "transpileOnly": true,
