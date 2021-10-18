@@ -89,7 +89,6 @@ const usersAppsController = (
         force: true,
       });
 
-      console.log(plist.build);
       const json = await userAppRepository.createAppBuild(
         Number(req.params.userId),
         {

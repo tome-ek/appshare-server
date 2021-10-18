@@ -10,14 +10,14 @@ chai.use(chaiSubset);
 describe('WebRtcSignalingController', () => {
   describe('onSocketConnected', () => {
     it('should accept new web socket connections.', (done) => {
-      const websocket = new WebSocket('ws://localhost:3000');
+      const websocket = new WebSocket(`ws://localhost:${process.env.PORT}`);
       websocket.onopen = () => {
         done();
       };
     });
 
     it('should handle "subscribe" message type.', (done) => {
-      const websocket = new WebSocket('ws://localhost:3000');
+      const websocket = new WebSocket(`ws://localhost:${process.env.PORT}`);
       websocket.onopen = () => {
         websocket.send(
           JSON.stringify({
@@ -32,7 +32,7 @@ describe('WebRtcSignalingController', () => {
     });
 
     it('should handle "streamRequest" message type.', (done) => {
-      const websocket = new WebSocket('ws://localhost:3000');
+      const websocket = new WebSocket(`ws://localhost:${process.env.PORT}`);
       websocket.onopen = () => {
         websocket.send(
           JSON.stringify({
@@ -47,7 +47,7 @@ describe('WebRtcSignalingController', () => {
     });
 
     it('should handle "offer" message type.', (done) => {
-      const websocket = new WebSocket('ws://localhost:3000');
+      const websocket = new WebSocket(`ws://localhost:${process.env.PORT}`);
       websocket.onopen = () => {
         websocket.send(
           JSON.stringify({
@@ -62,7 +62,7 @@ describe('WebRtcSignalingController', () => {
     });
 
     it('should handle "answer" message type.', (done) => {
-      const websocket = new WebSocket('ws://localhost:3000');
+      const websocket = new WebSocket(`ws://localhost:${process.env.PORT}`);
       websocket.onopen = () => {
         websocket.send(
           JSON.stringify({
