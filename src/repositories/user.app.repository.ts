@@ -4,6 +4,10 @@ import { AppModel } from '../models/app.model';
 import { BuildModel } from '../models/build.model';
 import { UserModel } from '../models/user.model';
 
+export type GetUserAppsOptions = {
+  includeHavingEmptyBuilds?: boolean;
+};
+
 export type AppBuild = {
   readonly name: string;
   readonly bundleIdentifier: string;
@@ -24,7 +28,7 @@ export type AppBuild = {
 
 export interface UserAppRepository {
   createAppBuild: (userId: number, build: AppBuild) => Promise<AppDto>;
-  getApps: (userId: number) => Promise<AppDto[]>;
+  getApps: (userId: number, options?: GetUserAppsOptions) => Promise<AppDto[]>;
   getAppForBundleIdentifier: (
     bundleIdentifier: string
   ) => Promise<AppDto | null>;
@@ -59,13 +63,17 @@ const userAppRepository = (
         return <AppDto>app.toJSON();
       }
     },
-    getApps: async (userId) => {
+    getApps: async (userId, options = { includeHavingEmptyBuilds: true }) => {
       const apps = await App.findAll({
-        where: { userId },
         include: [{ model: Build, as: 'builds' }],
+        where: { userId },
       });
 
-      return apps.map((app) => <AppDto>app.toJSON());
+      return apps
+        .map((app) => <AppDto>app.toJSON())
+        .filter(
+          (app) => options.includeHavingEmptyBuilds || app.builds?.length
+        );
     },
     getAppForBundleIdentifier: async (bundleIdentifier) => {
       const app = await App.findOne({

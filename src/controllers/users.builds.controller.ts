@@ -14,7 +14,8 @@ const usersBuildsController = (
   /**
    * GET /users/:userId/builds
    * @tags Builds
-   * @param {number} userId.params - Id of the user
+   * @param {integer} userId.params - Id of the user
+   * @param {string} sort.query - enum:createdAt,-createdAt - Sort by creation date ascending / descending
    * @security Jwt
    * @summary Returns all builds associated with the user.
    * @return {array<Build>} 200 - Success response - application/json
@@ -24,14 +25,12 @@ const usersBuildsController = (
     authorize('jwt'),
     param('userId').isInt({ min: 1 }),
     query('sort').isString().isIn(['createdAt', '-createdAt']).optional(true),
-    query('limit').isInt({ min: 1 }).optional(true),
     validate,
     parseFilters,
     async (req, res) => {
       res.json(
         await usersBuildsRepository.getBuilds(Number(req.params.userId), {
           sort: req.query.sort as [string, string],
-          limit: req.query.limit as number | undefined,
         })
       );
     }

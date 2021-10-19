@@ -4,7 +4,6 @@ import { BuildModel } from '../models/build.model';
 
 export type GetBuildsOptions = {
   sort?: [string, string];
-  limit?: number;
 };
 
 export interface UsersBuildsRepository {
@@ -25,7 +24,6 @@ const usersBuildsRepository = (Build: BuildModel): UsersBuildsRepository => {
           },
         },
         order: options.sort && [options.sort],
-        limit: options.limit,
       });
 
       return builds.map((app) => <BuildDto>app.toJSON());

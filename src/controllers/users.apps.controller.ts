@@ -38,7 +38,16 @@ const usersAppsController = (
     param('userId').isInt({ min: 1 }),
     validate,
     async (req, res) => {
-      res.json(await userAppRepository.getApps(Number(req.params.userId)));
+      let includeHavingEmptyBuilds = true;
+      if (req.query['builds!'] && req.query['builds!'] === '[]') {
+        includeHavingEmptyBuilds = false;
+      }
+
+      res.json(
+        await userAppRepository.getApps(Number(req.params.userId), {
+          includeHavingEmptyBuilds,
+        })
+      );
     }
   );
 
